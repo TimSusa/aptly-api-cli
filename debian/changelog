@@ -1,3 +1,9 @@
+aptly-cli (0.1.9) UNRELEASED; urgency=medium
+
+  * Add basic auth
+
+ -- Jenkins <jenkins@static.88-198-43-17.clients.your-server.de>  Wed, 09 Aug 2017 20:20:18 +0200
+
 aptly-cli (0.1.8-c4efef0ac0263ac3c8b55357f684aa01cf71e727-unstable) UNRELEASED; urgency=low
 
   * Initial release. (Closes: #XXXXXX)

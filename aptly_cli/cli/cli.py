@@ -36,6 +36,12 @@ def _get_parser_opts():
     """
     parser = OptionParser()
 
+    parser.add_option('--username',
+                      nargs=1,
+                      default=None,
+                      help='Username to auth on aptly',
+                      metavar='USERNAME')
+
     parser.add_option('--repo_list',
                       action='store_true',
                       help='List all local repos')
@@ -228,9 +234,12 @@ def _execute_opts(opts, args, util):
         """
         def __init__(self):
             pass
+
     #
     # Basic API functionalities
     #
+    util.api.update_auth(opts.username)
+
     if opts.repo_list:
         resp = util.api.repo_list()
         print json.dumps(resp, indent=2)

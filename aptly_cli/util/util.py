@@ -44,8 +44,10 @@ class Util(object):
             try:
                 conf = open(name, 'a')
                 conf.write(
-                    '[general]\nbasic_url=http://localhost\nport=:9003\nsave_last_snap=3\nsave_last_pkg=10\n \
-prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstaging_snap_pre_post=')
+                    '[general]\nbasic_url=http://localhost\nport=:9003\n \
+                    save_last_snap=3\nsave_last_pkg=10\nprefixes_mirrors=\n \
+                    package_prefixes=\nrepos_to_clean=\n[3rd_party]\nrepos=\n \
+                    staging_snap_pre_post=\n[auth]\user=\npassword=\n')
                 conf.close()
 
             except:

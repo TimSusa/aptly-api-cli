@@ -8,6 +8,7 @@ to the Aptly REST API remotely .
 
 import json
 import requests
+import getpass
 import os
 from ConfigParser import ConfigParser
 
@@ -30,14 +31,22 @@ class AptlyApiRequests(object):
         if cfg_file is not None:
             basic_url = cfg_file['basic_url']
             port = cfg_file['port']
+            user = cfg_file['user']
+            password = cfg_file['password']
         else:
             basic_url = 'http://localhost'
             port = ':9003'
+            user = ''
+            password = ''
             print "No Config file found, take default values"
 
-        self.headers = {'content-type': 'application/json'}
-
         url = basic_url + port
+
+        self.session = requests.Session()
+        self.session.headers = {'content-type': 'application/json'}
+
+        if password != '' and user != '':
+            self.session.auth = (user, password)
 
         # self values
         self.cfg = {
@@ -56,6 +65,18 @@ class AptlyApiRequests(object):
             # Number of snapshots to have left
             # 'save_last_snap': 3
         }
+        self.user = user
+        self.password = password
+
+    def update_auth(self, user):
+        if user == None:
+            if self.password == '' and self.user != '':
+                password = getpass.getpass()
+                self.session.auth = (self.user, password)
+        else:
+            password = getpass.getpass()
+            self.session.auth = (user, password)
+
 
     @staticmethod
     def _out(arg_list):
@@ -88,7 +109,10 @@ class AptlyApiRequests(object):
                 'package_prefixes': config_file.get('general', 'package_prefixes'),
                 # 3rd party
                 'repos': config_file.get('3rd_party', 'repos'),
-                'staging_snap_pre_post': config_file.get('3rd_party', 'staging_snap_pre_post')
+                'staging_snap_pre_post': config_file.get('3rd_party', 'staging_snap_pre_post'),
+                # auth
+                'user': config_file.get('auth', 'user'),
+                'password': config_file.get('auth', 'password'),
             }
         return cfg_file
 
@@ -124,9 +148,8 @@ class AptlyApiRequests(object):
                 'DefaultComponent': data.default_component
             }
 
-        r = requests.post(self.cfg['route_repo'][:-1],
-                          data=json.dumps(post_data),
-                          headers=self.headers)
+        r = self.session.post(self.cfg['route_repo'][:-1],
+                          data=json.dumps(post_data))
         # r.raise_for_status()
         resp_data = json.loads(r.content)
         # print resp_data
@@ -151,7 +174,7 @@ class AptlyApiRequests(object):
         Example:
         $ curl http://localhost:8080/api/repos/aptly-repo
         """
-        r = requests.get(self.cfg['route_repo'] + repo_name, headers=self.headers)
+        r = self.session.get(self.cfg['route_repo'] + repo_name)
         resp_data = json.loads(r.content)
         # print resp_data
         return resp_data
@@ -184,7 +207,7 @@ class AptlyApiRequests(object):
             }
         url = str(self.cfg['route_repo']) + str(repo_name) + '/packages'
 
-        r = requests.get(url, params=param, headers=self.headers)
+        r = self.session.get(url, params=param)
 #       raise_for_status()
         resp_data = json.loads(r.content)
         # print json.dumps(resp_data)
@@ -221,9 +244,8 @@ class AptlyApiRequests(object):
                 'DefaultComponent': data.default_component
             }
 
-        r = requests.put(self.cfg['route_repo'] + repo_name,
-                         data=json.dumps(data),
-                         headers=self.headers)
+        r = self.session.put(self.cfg['route_repo'] + repo_name,
+                         data=json.dumps(data))
         # r.raise_for_status()
         resp_data = json.loads(r.content)
         # print resp_data
@@ -238,8 +260,8 @@ class AptlyApiRequests(object):
         Example:
         $ curl http://localhost:8080/api/repos
         """
-        r = requests.get(self.cfg['route_repo'], headers=self.headers)
-#        r.raise_for_status()
+        r = self.session.get(self.cfg['route_repo'])
+        # r.raise_for_status()
         resp_data = json.loads(r.content)
         # print json.dumps(resp_data)
         return resp_data
@@ -260,9 +282,8 @@ class AptlyApiRequests(object):
         404 repository with such name doesn’t exist
         409 repository can’t be dropped ( self, reason in the message)
         """
-        r = requests.delete(self.cfg['route_repo'] + repo_name,
-                            headers=self.headers)
-#        r.raise_for_status()
+        r = self.session.delete(self.cfg['route_repo'] + repo_name)
+        # r.raise_for_status()
         resp_data = json.loads(r.content)
         # print json.dumps(resp_data)
         return resp_data
@@ -314,9 +335,7 @@ class AptlyApiRequests(object):
                 'forceReplace': 0
             }
 
-        r = requests.post(url,
-                          params=query_param,
-                          headers=self.headers)
+        r = self.session.post(url, params=query_param)
         # r.raise_for_status()
         resp_data = json.loads(r.content)
         # print resp_data
@@ -355,7 +374,7 @@ class AptlyApiRequests(object):
         param = {
             'PackageRefs': package_key_list
         }
-        r = requests.post(url, data=json.dumps(param), headers=self.headers)
+        r = self.session.post(url, data=json.dumps(param))
         resp_data = json.loads(r.content)
         # print resp_data
         return resp_data
@@ -384,7 +403,7 @@ class AptlyApiRequests(object):
         data = {
             'PackageRefs': package_key_list
         }
-        r = requests.delete(url, data=json.dumps(data), headers=self.headers)
+        r = self.session.delete(url, data=json.dumps(data))
         resp_data = json.loads(r.content)
         # print resp_data
         return resp_data
@@ -403,7 +422,7 @@ class AptlyApiRequests(object):
         Example:
         $ curl http://localhost:8080/api/files
         """
-        r = requests.get(self.cfg['route_file'], headers=self.headers)
+        r = self.session.get(self.cfg['route_file'])
         # r.raise_for_status()
         resp_data = json.loads(r.content)
         # print json.dumps(resp_data)
@@ -426,7 +445,7 @@ class AptlyApiRequests(object):
             'file': open(file_path, 'rb')
         }
 
-        r = requests.post(self.cfg['route_file'] + dir_name,
+        r = self.session.post(self.cfg['route_file'] + dir_name,
                           files=f)
 
         # r.raise_for_status()
@@ -450,8 +469,7 @@ class AptlyApiRequests(object):
         if dir_name is None:
             dir_name = ''
 
-        r = requests.get(self.cfg['route_file'] +
-                         dir_name, headers=self.headers)
+        r = self.session.get(self.cfg['route_file'] + dir_name)
         # r.raise_for_status()
         resp_data = json.loads(r.content)
         # print json.dumps(resp_data)
@@ -466,8 +484,7 @@ class AptlyApiRequests(object):
         Example:
         $ curl -X DELETE http://localhost:8080/api/files/aptly-0.9
         """
-        r = requests.delete(
-            self.cfg['route_file'] + dir_name, headers=self.headers)
+        r = self.session.delete(self.cfg['route_file'] + dir_name)
 #        r.raise_for_status()
         resp_data = json.loads(r.content)
         # print json.dumps(resp_data)
@@ -482,8 +499,8 @@ class AptlyApiRequests(object):
         Example:
         $ curl -X DELETE http://localhost:8080/api/files/aptly-0.9/aptly_0.9~dev+217+ge5d646c_i386.deb
         """
-        r = requests.delete(
-            self.cfg['route_file'] + dir_name + '/' + file_name, headers=self.headers)
+        r = self.session.delete(
+            self.cfg['route_file'] + dir_name + '/' + file_name)
 #        r.raise_for_status()
         resp_data = json.loads(r.content)
         # print json.dumps(resp_data)
@@ -508,9 +525,8 @@ class AptlyApiRequests(object):
         params = {
             'sort': sort
         }
-        r = requests.get(self.cfg['route_snap'],
-                         headers=self.headers, params=params)
-#        r.raise_for_status()
+        r = self.session.get(self.cfg['route_snap'], params=params)
+        # r.raise_for_status()
         resp_data = json.loads(r.content)
         # self._out(resp_data)
         return resp_data
@@ -543,7 +559,7 @@ class AptlyApiRequests(object):
             'Description': description
         }
 
-        r = requests.post(url, data=json.dumps(data), headers=self.headers)
+        r = self.session.post(url, data=json.dumps(data))
         # r.raise_for_status()
         resp_data = json.loads(r.content)
         # print resp_data
@@ -584,7 +600,7 @@ class AptlyApiRequests(object):
             'PackageRefs': package_refs_list
         }
 
-        r = requests.post(url, data=json.dumps(data), headers=self.headers)
+        r = self.session.post(url, data=json.dumps(data))
         resp_data = json.loads(r.content)
         # print resp_data
         return resp_data
@@ -616,7 +632,7 @@ class AptlyApiRequests(object):
             'Description': description
         }
 
-        r = requests.put(url, data=json.dumps(data), headers=self.headers)
+        r = self.session.put(url, data=json.dumps(data))
         resp_data = json.loads(r.content)
         # print resp_data
         return resp_data
@@ -635,7 +651,7 @@ class AptlyApiRequests(object):
         $ curl http://localhost:8080/api/snapshots/snap1
         """
         url = self.cfg['route_snap'] + snapshot_name
-        r = requests.get(url, headers=self.headers)
+        r = self.session.get(url)
         resp_data = json.loads(r.content)
         # print resp_data
         return resp_data
@@ -666,7 +682,7 @@ class AptlyApiRequests(object):
             'force': force
         }
 
-        r = requests.delete(url, params=param, headers=self.headers)
+        r = self.session.delete(url, params=param)
         print r.url
         resp_data = json.loads(r.content)
         # print resp_data
@@ -702,7 +718,7 @@ class AptlyApiRequests(object):
                 'format': detail
             }
 
-        r = requests.get(url, params=param, headers=self.headers)
+        r = self.session.get(url, params=param)
         resp_data = json.loads(r.content)
         # print resp_data
         return resp_data
@@ -727,7 +743,7 @@ class AptlyApiRequests(object):
         """
         url = self.cfg['route_snap'] + \
             snapshot_left + '/diff/' + snapshot_right
-        r = requests.get(url, headers=self.headers)
+        r = self.session.get(url)
         resp = json.loads(r.content)
         # print resp
         return resp
@@ -746,7 +762,7 @@ class AptlyApiRequests(object):
         $ curl http://localhost:8080/api/publish
         """
         url = self.cfg['route_pub']
-        r = requests.get(url, headers=self.headers)
+        r = self.session.get(url)
         resp = json.loads(r.content)
         # print resp
         return resp
@@ -836,7 +852,7 @@ class AptlyApiRequests(object):
             }
 
         # print dat
-        r = requests.post(url, data=json.dumps(dat), headers=self.headers)
+        r = self.session.post(url, data=json.dumps(dat))
         # print r.url
         resp = json.loads(r.content)
         # print resp
@@ -892,7 +908,7 @@ class AptlyApiRequests(object):
             'Snapshots': snap_list_obj,
             'ForceOverwrite': fo
         }
-        r = requests.put(url, data=json.dumps(data), headers=self.headers)
+        r = self.session.put(url, data=json.dumps(data))
         resp = json.loads(r.content)
         # print resp
         return resp
@@ -919,7 +935,7 @@ class AptlyApiRequests(object):
             'force': force
         }
 
-        r = requests.delete(url, params=param, headers=self.headers)
+        r = self.session.delete(url, params=param)
         resp = json.loads(r.content)
         # print resp
         return resp
@@ -951,7 +967,7 @@ class AptlyApiRequests(object):
         Hint: %20 is url-encoded space.
         """
         url = self.cfg['route_pack'] + package_key
-        r = requests.get(url, headers=self.headers)
+        r = self.session.get(url)
         resp = json.loads(r.content)
         # print resp
         return resp
@@ -971,7 +987,7 @@ class AptlyApiRequests(object):
         """
         url = self.cfg['route_graph'][:-1] + file_ext
         print url
-        r = requests.get(url, headers=self.headers)
+        r = self.session.get(url)
         resp = json.loads(r.content)
         # print resp
         return resp
@@ -989,7 +1005,7 @@ class AptlyApiRequests(object):
         $ curl http://localhost:8080/api/version
         """
         url = self.cfg['route_vers']
-        r = requests.get(url, headers=self.headers)
+        r = self.session.get(url)
         resp = json.loads(r.content)
         # print resp
         return resp

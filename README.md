@@ -99,6 +99,10 @@ Please Note: You can configure the following keys:
 - package_prefixes: package-prefixes, which should be searched for to be cleaned out
 - save_last_pkg: Number of package-versions for each prefix, that should be kept
 - save_last_snap: Number of snapshot-versions for each prefix, that should be kept
+- repos: 3rd party s3 buckets to publish switch to
+- staging_snap_pre_post: Pre and postfix of the staging snapshots
+- auth: user to authenticate using basic auth
+- password: password to authenticate using basic auth
 
 See an working example (aptly-cli.conf):
 
@@ -118,6 +122,10 @@ save_last_snap=3
 repos=3rdparty-eu-west-1, 3rdparty-us-east-1
 # Pre and postfix of the staging snapshots
 staging_snap_pre_post=3rdparty-s3-repo, 3rdparty-staging_snapshot
+
+[auth]
+user=jenkins
+password=
 ```
 
 
