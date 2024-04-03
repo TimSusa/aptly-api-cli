@@ -26,7 +26,7 @@ def main():
         home = os.path.expanduser("~")
         name = home + '/aptly-cli.conf'
         if not os.path.exists(name):
-            print "No config file (aptly-cli.conf) found at $HOME. Please create one by --create_config option"
+            print("No config file (aptly-cli.conf) found at $HOME. Please create one by --create_config option")
             sys.exit(0)
 
 
@@ -233,7 +233,7 @@ def _execute_opts(opts, args, util):
     #
     if opts.repo_list:
         resp = util.api.repo_list()
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.repo_create:
         if len(args) >= 3:
@@ -243,7 +243,7 @@ def _execute_opts(opts, args, util):
             resp = util.api.repo_create(opts.repo_create, Data)
         else:
             resp = util.api.repo_create(opts.repo_create)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.repo_show_packages:
         resp = None
@@ -252,11 +252,11 @@ def _execute_opts(opts, args, util):
                 opts.repo_show_packages, args[0], args[1], args[2])
         else:
             resp = util.api.repo_show_packages(opts.repo_show_packages)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.repo_show:
         resp = util.api.repo_show(opts.repo_show)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.repo_edit:
         if len(args) >= 3:
@@ -264,47 +264,47 @@ def _execute_opts(opts, args, util):
             Data.default_distribution = args[1]
             Data.default_component = args[2]
             resp = util.api.repo_edit(opts.repo_edit, Data)
-            print json.dumps(resp, indent=2)
+            print(json.dumps(resp, indent=2))
         else:
-            print 'Wrong usage!'
+            print('Wrong usage!')
 
     if opts.repo_delete:
         resp = util.api.repo_delete(opts.repo_delete)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.file_list_dirs:
         resp = util.api.file_list_directories()
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.file_upload:
         resp = util.api.file_upload(opts.file_upload[0], opts.file_upload[1])
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.repo_add_package_from_upload:
         o = opts.repo_add_package_from_upload
         resp = util.api.repo_add_package_from_upload(o[0], o[1], o[2])
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.repo_add_packages_by_key:
-        print 'repo_add_packages_by_key'
+        print('repo_add_packages_by_key')
         o = opts.repo_add_packages_by_key
         key_list = o[1].split(', ')
         resp = util.api.repo_add_packages_by_key(o[0], key_list)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.repo_delete_packages_by_key:
-        print 'repo_delete_packages_by_key'
+        print('repo_delete_packages_by_key')
         o = opts.repo_delete_packages_by_key
         key_list = o[1].split(', ')
         resp = util.api.repo_delete_packages_by_key(o[0], key_list)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.file_list:
         resp = util.api.file_list()
 
     if opts.file_delete_dir:
         resp = util.api.file_delete_directory(opts.file_delete_dir)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.file_delete:
         resp = util.api.file_delete(opts.file_delete[0], opts.file_delete[1])
@@ -316,7 +316,7 @@ def _execute_opts(opts, args, util):
             resp = util.api.snapshot_create_from_local_repo(o[0], o[1], args[0])
         else:
             resp = util.api.snapshot_create_from_local_repo(o[0], o[1])
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.snapshot_create_by_pack_refs:
         o = opts.snapshot_create_by_pack_refs
@@ -326,7 +326,7 @@ def _execute_opts(opts, args, util):
             resp = util.api.snapshot_create_from_package_refs(o[0], o[1].split(', '), l, args[0])
         else:
             resp = util.api.snapshot_create_from_package_refs(o[0], o[1].split(', '), l)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.snapshot_show_packages:
         o = opts.snapshot_show_packages
@@ -335,35 +335,35 @@ def _execute_opts(opts, args, util):
             resp = util.api.snapshot_show_packages(o, args[0], args[1], args[2])
         else:
             resp = util.api.snapshot_show_packages(o)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.snapshot_update:
         o = opts.snapshot_update
         if len(args) >= 1:
             resp = util.api.snapshot_update(o[0], o[1], args[0])
-            print json.dumps(resp, indent=2)
+            print(json.dumps(resp, indent=2))
 
     if opts.snapshot_list:
         if len(args) >= 1:
-            print json.dumps(util.api.snapshot_list(args[0]), indent=2)
+            print(json.dumps(util.api.snapshot_list(args[0]), indent=2))
         else:
-            print json.dumps(util.api.snapshot_list(), indent=2)
+            print(json.dumps(util.api.snapshot_list(), indent=2))
 
     if opts.snapshot_diff:
-        print json.dumps(util.api.snapshot_diff(opts.snapshot_diff[0], opts.snapshot_diff[1]), indent=2)
+        print(json.dumps(util.api.snapshot_diff(opts.snapshot_diff[0], opts.snapshot_diff[1]), indent=2))
 
     if opts.snapshot_delete:
         resp = None
         if len(args) >= 1:
-            print args[0]
+            print(args[0])
             resp = util.api.snapshot_delete(opts.snapshot_delete, args[0])
         else:
             resp = util.api.snapshot_delete(opts.snapshot_delete)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.publish_list:
         resp = util.api.publish_list()
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.publish:
         o = opts.publish
@@ -373,7 +373,7 @@ def _execute_opts(opts, args, util):
                 o[0], o[1], o[2].split(', '), o[3], o[4].split(', '), args[1], args[2], args[3], args[4].split(', '))
         else:
             resp = util.api.publish(o[0], o[1], o[2].split(', '), o[3], o[4].split(', '))
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.publish_switch:
         o = opts.publish_switch
@@ -382,7 +382,7 @@ def _execute_opts(opts, args, util):
             res = util.api.publish_switch(o[0], o[1], o[2], args[0], args[1])
         else:
             res = util.api.publish_switch(o[0], o[1], o[2])
-        print json.dumps(res, indent=2)
+        print(json.dumps(res, indent=2))
 
     if opts.publish_drop:
         o = opts.publish_drop
@@ -391,15 +391,15 @@ def _execute_opts(opts, args, util):
             resp = util.api.publish_drop(o[0], o[1], args[0])
         else:
             resp = util.api.publish_drop(o[0], o[1])
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.package_show_by_key:
         resp = util.api.package_show_by_key(opts.package_show_by_key)
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     if opts.get_version:
         resp = util.api.get_version()
-        print json.dumps(resp, indent=2)
+        print(json.dumps(resp, indent=2))
 
     #
     # Extended functionalities
@@ -416,9 +416,9 @@ def _execute_opts(opts, args, util):
             res = util.get_last_snapshots(o[0], o[1])
 
         if len(res) == 1:
-            print ''.join(res)
+            print(''.join(res))
         else:
-            print json.dumps(res, indent=2)
+            print(json.dumps(res, indent=2))
 
     if opts.clean_last_snapshots:
         o = opts.clean_last_snapshots
@@ -427,7 +427,7 @@ def _execute_opts(opts, args, util):
         else:
             res = util.clean_last_snapshots(o[0], o[1])
 
-        print json.dumps(res, indent=2)
+        print(json.dumps(res, indent=2))
 
     if opts.diff_both_last_snapshots_mirrors:
         # package prefix, reponame
@@ -453,9 +453,9 @@ def _execute_opts(opts, args, util):
             res = util.get_last_packages(o[0], o[1], o[2])
 
         if len(res) == 1:
-            print ''.join(res)
+            print(''.join(res))
         else:
-            print json.dumps(res, indent=2)
+            print(json.dumps(res, indent=2))
 
     if opts.clean_last_packages:
         o = opts.clean_last_packages

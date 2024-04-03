@@ -37,10 +37,10 @@ class Util(object):
         home = expanduser("~")
         name = home + '/aptly-cli.conf'
 
-        print "Look for already existing file..."
+        print("Look for already existing file...")
 
         if not exists(name):
-            print 'Create_init_file'
+            print('Create_init_file')
             try:
                 conf = open(name, 'a')
                 conf.write(
@@ -52,8 +52,8 @@ prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstagin
                 print('Something went wrong! Can\'t tell what?')
 
         else:
-            print "File already exists! Stop action"
-            print name
+            print("File already exists! Stop action")
+            print(name)
 
     def _natural_keys(self, text):
         """ _natural_keys
@@ -119,8 +119,8 @@ prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstagin
                     # force removal
                     self.api.snapshot_delete(item, '1')
         else:
-            print prefix
-            print "Nothing to delete...."
+            print(prefix)
+            print("Nothing to delete....")
 
     def diff_both_last_snapshots_mirrors(self):
         """ diff_both_last_snapshots_mirrors
@@ -131,7 +131,7 @@ prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstagin
         if local_cfg['prefixes_mirrors']:
             prefix_list = local_cfg['prefixes_mirrors'].split(', ')
         else:
-            print "Error: Prefix list is empty: please add prefixes_mirrors to your configfile!"
+            print("Error: Prefix list is empty: please add prefixes_mirrors to your configfile!")
 
         snaplist = self.api.snapshot_list()
         results = []
@@ -149,7 +149,7 @@ prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstagin
             else:
                 results.append("EMPTY")
 
-        # print results
+        # print(results)
         result = ""
         for y in results:
             if y == "EMPTY":
@@ -158,7 +158,7 @@ prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstagin
                 result = y
                 break
 
-        print result
+        print(result)
         return result
 
     def list_all_repos_and_packages(self):
@@ -166,10 +166,10 @@ prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstagin
         """
         repos = self.api.repo_list()
         for repo in repos:
-            print repo[u'Name']
+            print(repo[u'Name'])
             packs = self.api.repo_show_packages(repo[u'Name'])
             for pack in packs:
-                print pack
+                print(pack)
 
     def get_last_packages(self, repo_name, pack_prefix, nr_of_leftover, postfix=None):
         """ get_last_packages
@@ -194,31 +194,31 @@ prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstagin
         nr_to_left_over = int(
             self.api.get_config_from_file()['save_last_pkg'])
 
-        print nr_to_left_over
+        print(nr_to_left_over)
 
         if len(items_to_delete) > nr_to_left_over:
             worklist = []
             for item in items_to_delete[:-nr_to_left_over]:
                 if item:
-                    print "Will remove..."
-                    print item
+                    print("Will remove...")
+                    print(item)
                     worklist.append(item)
 
             self.api.repo_delete_packages_by_key(repo_name, worklist)
         else:
-            print "Nothing to delete..."
+            print("Nothing to delete...")
 
     def _sort_out_last_n_packages(self, packlist, prefix, nr_of_leftover, postfix=None):
         """ _sort_out_last_n_snap
         Returns n sorted items from given input list by prefix.
         """
-        # print packlist
+        # print(packlist)
         worklist = []
         for pack_blob in packlist:
             pack_tmp = pack_blob.split(' ')
             if pack_tmp[1] in prefix:
                 worklist.append(pack_blob)
-            # print pack_tmp[1]
+            # print(pack_tmp[1])
 
         slen = len(worklist)
         worklist.sort(key=self._natural_keys)
@@ -236,12 +236,12 @@ prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstagin
         """ clean_mirrored_snapshots
         Clean out all snapshots that were taken from mirrors. The mirror entries are taken from config file.
         """
-        print "clean mirrored snapshots"
+        print("clean mirrored snapshots")
         local_cfg = self.api.get_config_from_file()
         if local_cfg['prefixes_mirrors']:
             prefix_list = local_cfg['prefixes_mirrors'].split(', ')
         else:
-            print "Error: Prefix list is empty: please add prefixes_mirrors to your configfile!"
+            print("Error: Prefix list is empty: please add prefixes_mirrors to your configfile!")
 
         for x in prefix_list:
             self.clean_last_snapshots(x, 100)
@@ -250,41 +250,41 @@ prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstagin
         """ clean_repo_snapshots
         Clean out all snapshots that were taken from repos. The repo entries are taken from config file.
         """
-        print "clean snapshots from repos"
+        print("clean snapshots from repos")
         local_cfg = self.api.get_config_from_file()
         if local_cfg['repos_to_clean']:
             repo_list = local_cfg['repos_to_clean'].split(', ')
         else:
-            print "Error: Prefix list is empty: please add repos_to_clean to your configfile!"
+            print("Error: Prefix list is empty: please add repos_to_clean to your configfile!")
 
         if local_cfg['package_prefixes']:
             pack_pref_list = local_cfg['package_prefixes'].split(', ')
         else:
-            print "Error: Prefix list is empty: please add package_prefixes to your configfile!"
+            print("Error: Prefix list is empty: please add package_prefixes to your configfile!")
 
         for repo_name in repo_list:
-            print repo_name
+            print(repo_name)
             for pack_prefix in pack_pref_list:
-                print pack_prefix
+                print(pack_prefix)
                 self.clean_last_packages(repo_name, pack_prefix, 100)
 
     def publish_switch_3rdparty_production(self):
         """ publish_switch_s3_3rd_party_production
         Publish the latest 3rd party snapshot from staging to production, only if there is new content available.
         """
-        print "publish_switch_s3_3rd_party_production"
+        print("publish_switch_s3_3rd_party_production")
 
         # Get Config
         local_cfg = self.api.get_config_from_file()
         if local_cfg['repos']:
             s3_list = local_cfg['repos'].split(', ')
         else:
-            print "Error: Prefix list is empty: please add s3 buckets to your configfile!"
+            print("Error: Prefix list is empty: please add s3 buckets to your configfile!")
 
         if local_cfg['staging_snap_pre_post']:
             prefix_postfix = local_cfg['staging_snap_pre_post'].split(', ')
         else:
-            print "Error: Prefix list is empty: please add staging_snap_pre_post to your configfile!"
+            print("Error: Prefix list is empty: please add staging_snap_pre_post to your configfile!")
 
         # Diff snapshots from mirrors
         # Temphack
@@ -292,20 +292,20 @@ prefixes_mirrors=\npackage_prefixes=\nrepos_to_clean=\n[general]\nrepos=\nstagin
 
         # Decide if it should be released to production
         if res == "EMPTY":
-            print "New snapshot has no new packages. No need to release to production!"
+            print("New snapshot has no new packages. No need to release to production!")
 
         else:
-            print "New packages were found...", res
+            print("New packages were found...", res)
 
             # Get most actual snapshot from 3rdparty staging
             last_snap = self.get_last_snapshots(prefix_postfix[0], 1, prefix_postfix[1])
-            print "This is the new snapshot: ", last_snap
+            print("This is the new snapshot: ", last_snap)
 
             # publish snapshots to production on s3
-            print ("Publish ", last_snap, s3_list[0])
+            print(("Publish ", last_snap, s3_list[0]))
             self.api.publish_switch(s3_list[0], last_snap, "precise", "main", 0)
 
-            print ("Publish ", last_snap, s3_list[1])
+            print(("Publish ", last_snap, s3_list[1]))
             self.api.publish_switch(s3_list[1], last_snap, "precise", "main", 0)
 
             # clean out
