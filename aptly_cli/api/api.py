@@ -9,7 +9,10 @@ to the Aptly REST API remotely .
 import json
 import requests
 import os
-from ConfigParser import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except ImportError:
+    from configparser import ConfigParser
 
 
 class AptlyApiRequests(object):
